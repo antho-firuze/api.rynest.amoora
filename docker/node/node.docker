@@ -1,0 +1,9 @@
+FROM node:alpine
+
+WORKDIR /app
+COPY . .
+
+RUN npm create vite@latest
+
+EXPOSE 5137
+# CMD ["npm", "run", "dev"]

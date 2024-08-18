@@ -1,0 +1,71 @@
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+
+services:
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./docker/nginx/nginx.docker
+    container_name: z-nginx
+    restart: always
+    tty: true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./:/app
+    networks:
+      app-network:
+        ipv4_address: 172.28.1.19
+
+  php-webman:
+    build:
+      context: ./
+      dockerfile: ./docker/php-webman/phpwebman.docker
+    container_name: z-phpwebman
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 8888:8888
+      - 8787:8787
+      - 8686:8686
+      - 8585:8585
+      - 3131:3131
+    volumes:
+      - ./:/app
+      - /app/vendor/
+    environment:
+      - REDIS_HOST=172.28.1.18
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9
+    networks:
+      app-network:
+        ipv4_address: 172.28.1.20
+
+  redis:
+    build:
+      context: ./
+      dockerfile: ./docker/redis/redis.docker
+    container_name: z-redis
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 6379:6379
+    working_dir: /data
+    volumes:
+      - redisdata:/data
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_HOST=127.0.0.1
+    networks:
+      app-network:
+        ipv4_address: 172.28.1.18
+
+volumes:
+  redisdata:
+    driver: local
