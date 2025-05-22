@@ -1,4 +1,4 @@
-FROM php:8.3-cli-alpine
+FROM php:8.4-cli-alpine
 
 ENV TZ=Asia/Jakarta
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -34,15 +34,17 @@ RUN apk add --no-cache $PHPIZE_DEPS openssl-dev
 RUN pecl install redis 
 RUN docker-php-ext-enable redis
 
-# Add Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Setup Project
-RUN mkdir -p /app
-WORKDIR /app
-COPY . .
-RUN composer install
+# SET THE WORKING DIRECTORY
+WORKDIR /webman
+COPY ./webman .
 
-EXPOSE 8787 8686 8585 3131 8888
+# OPENED PORT
+# ===========
+EXPOSE 8787 8686 8585 3131 3232 8888
 
+# NEXT STEP AFTER INSTALL MANUAL : Uncomment two lines below, when first time create phpwebman
+# ==============================
+RUN composer install --ignore-platform-reqs
 CMD ["php", "start.php", "start"]
