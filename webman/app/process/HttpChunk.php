@@ -14,7 +14,7 @@ class HttpChunk
     {
         // First, send a response response with Transfer-Endcoding: chunket header
         $total_count = 10;
-        $connection->send(new Response(200, array('Transfer-Encoding' => 'chunked'), "common {$total_count}Paragraph data<br>"));
+        $connection->send(new Response(200, array('Transfer-Encoding' => 'chunked'), "common {$total_count} Paragraph data<br>"));
         $timer_id = Timer::add(2, function () use ($connection, &$timer_id, $total_count) {
             static $count = 0;
             // When the connection is turned off, delete the timer to avoid the continuous accumulation of the timer and cause memory leakage.

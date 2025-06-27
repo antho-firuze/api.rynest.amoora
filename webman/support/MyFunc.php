@@ -161,20 +161,54 @@ class MyFunc
         }
     }
 
-    static function send_notif(string $channel_name, string $event, array $data, string $socket_id = '')
+    static function send_notif(string $channel_name, string $event, array $data, string $socket_id = ''): bool
     {
         $pusher = new Api(
             str_replace('0.0.0.0', '127.0.0.1', config('plugin.webman.push.app.api')),
             config('plugin.webman.push.app.app_key'),
             config('plugin.webman.push.app.app_secret')
         );
-        // // Push a message event to all clients subscribed to user-1
-        // $channel_name = 'public-channel';
-        // $event = 'message';
-        // $data['from_uid'] = 0;
-        // $data['title'] = 'Hanya title';
-        // $data['message'] = 'Hanya message biasa !';
-        // $socket_id = '';
-        $pusher->trigger($channel_name, $event, $data, $socket_id);
+        
+        // Push a message event to all clients subscribed to user-1
+        return $pusher->trigger($channel_name, $event, $data, $socket_id);
+    }
+
+    static function getChannels(string $filter_by_prefix = '')
+    {
+        $pusher = new Api(
+            str_replace('0.0.0.0', '127.0.0.1', config('plugin.webman.push.app.api')),
+            config('plugin.webman.push.app.app_key'),
+            config('plugin.webman.push.app.app_secret')
+        );
+
+        $params = ["info" => "subscription_count", "filter_by_prefix" => $filter_by_prefix];
+        $result = $pusher->getChannels($params);
+        return $result;
+    }
+
+    static function channelInfo(string $channel_name = '')
+    {
+        $pusher = new Api(
+            str_replace('0.0.0.0', '127.0.0.1', config('plugin.webman.push.app.api')),
+            config('plugin.webman.push.app.app_key'),
+            config('plugin.webman.push.app.app_secret')
+        );
+
+        $params = ["info" => "subscription_count,user_count"];
+        $result = $pusher->getChannelInfo($channel_name, $params);
+        return $result;
+    }
+
+    static function channelInfoUsers(string $channel_name = '')
+    {
+        $pusher = new Api(
+            str_replace('0.0.0.0', '127.0.0.1', config('plugin.webman.push.app.api')),
+            config('plugin.webman.push.app.app_key'),
+            config('plugin.webman.push.app.app_secret')
+        );
+
+        $params = ["info" => "subscription_count,user_count"];
+        $result = $pusher->get("/channels/$channel_name/users", $params);
+        return $result;
     }
 }

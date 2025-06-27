@@ -12,9 +12,9 @@ use support\Response;
  * @return Response
  */
 if (!function_exists('jsonr')) {
-    function jsonr($data, int $options = JSON_UNESCAPED_UNICODE): Response
+    function jsonr($data, int $status = 500, int $options = JSON_UNESCAPED_UNICODE): Response
     {
-        return new Response(500, ['Content-Type' => 'application/json'], json_encode($data, $options));
+        return new Response($status, ['Content-Type' => 'application/json'], json_encode($data, $options));
     }
 }
 

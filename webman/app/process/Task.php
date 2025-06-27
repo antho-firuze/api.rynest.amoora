@@ -16,7 +16,7 @@ class Task
 
         // Run every 15 seconds
         new Crontab('*/15 * * * * *', function () {
-            $this->update_broadcast_state();
+            $this->update_streamer_state();
         });
 
         // // Run every minute
@@ -38,6 +38,16 @@ class Task
         new Crontab('0 23 * * *', function () {
             $this->clean_location_garbage();
         });
+    }
+
+    // Check heartbeat every 15 second
+    private function update_streamer_state()
+    {
+        $obsolete = date('Y-m-d H:i:s', strtotime('-30 second')); // heartbeat not update for 30's its mean finished
+        Db::table('streamer')
+            ->where('finished_at', '=', null)
+            ->where('heartbeat', '<', $obsolete)
+            ->update(['finished_at' => date('Y-m-d H:i:s')]);
     }
 
     private function update_broadcast_state()

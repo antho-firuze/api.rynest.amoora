@@ -99,6 +99,18 @@ class Auth_v1
      */
     protected $noNeedLogin = ['signin', 'signup', 'reset_pwd', 'send_code', 'resend_code', 'refresh_token', 'verify_code'];
 
+    protected $validatorDesc = [
+        'attribute' => 'Params [{{name}}] is required',
+        'stringType' => '[{{name}}] must be a string type',
+        'intType' => '[{{name}}] must be integer',
+        'email' => '[{{name}}] must be a valid email',
+        'boolType' => '[{{name}}] must be a boolean type',
+        'length' => '[{{name}}] length must be between {{minValue}} and {{maxValue}}',
+        'number' => '[{{name}}] must be a number',
+        'notEmpty' => '[{{name}}] must not empty',
+        'noWhitespace' => '[{{name}}|username] cannot contain spaces',
+    ];
+
     public function index(Request $request)
     {
         // $user = session('user');
@@ -133,10 +145,7 @@ class Auth_v1
                 ->attribute('password', v::notEmpty());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }
@@ -218,16 +227,7 @@ class Auth_v1
                 ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'stringType' => '[{{name}}] must be a string type',
-                'noWhitespace' => '[{{name}}|username] cannot contain spaces',
-                'email' => '[{{name}}] must be a valid email',
-                'length' => '[{{name}}] length must be between {{minValue}} and {{maxValue}}',
-                'number' => '[{{name}}] must be a number',
-                'boolType' => '[{{name}}] must be a boolean type',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }
@@ -317,15 +317,7 @@ class Auth_v1
                 ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'stringType' => '[{{name}}] must be a string type',
-                'noWhitespace' => '[{{name}}|username] cannot contain spaces',
-                'email' => '[{{name}}] must be a valid email',
-                'length' => '[{{name}}] length must be between {{minValue}} and {{maxValue}}',
-                'boolType' => '[{{name}}] must be a boolean type',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }
@@ -384,14 +376,7 @@ class Auth_v1
                 ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'noWhitespace' => '[{{name}}|username] cannot contain spaces',
-                'email' => '[{{name}}] must be a valid email',
-                'length' => '[{{name}}] length must be between {{minValue}} and {{maxValue}}',
-                'boolType' => '[{{name}}] must be a boolean type',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }
@@ -475,13 +460,7 @@ class Auth_v1
                 ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'stringType' => '[{{name}}] must be a string type',
-                'email' => '[{{name}}] must be a valid email',
-                'boolType' => '[{{name}}] must be a boolean type',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }
@@ -557,13 +536,7 @@ class Auth_v1
                 ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'stringType' => '[{{name}}] must be a string type',
-                'email' => '[{{name}}] must be a valid email',
-                'boolType' => '[{{name}}] must be a boolean type',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }
@@ -661,13 +634,7 @@ class Auth_v1
                 ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'stringType' => '[{{name}}] must be a string type',
-                'email' => '[{{name}}] must be a valid email',
-                'boolType' => '[{{name}}] must be a boolean type',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }
@@ -730,13 +697,7 @@ class Auth_v1
                 ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'stringType' => '[{{name}}] must be a string type',
-                'email' => '[{{name}}] must be a valid email',
-                'boolType' => '[{{name}}] must be a boolean type',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }

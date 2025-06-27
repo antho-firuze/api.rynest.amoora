@@ -13,6 +13,15 @@ class Product_v1
 {
     protected $noNeedLogin = ['index', 'all', 'list', 'byId'];
 
+    protected $validatorDesc = [
+        'attribute' => 'Params [{{name}}] is required',
+        'stringType' => '[{{name}}] must be a string type',
+        'intType' => '[{{name}}] must be integer',
+        'email' => '[{{name}}] must be a valid email',
+        'boolType' => '[{{name}}] must be a boolean type',
+        'notEmpty' => '[{{name}}] must not empty',
+    ];
+
     public function index(Request $request)
     {
         return json(['message' => "Product API v1"]);
@@ -135,11 +144,7 @@ class Product_v1
             $inputValidator = v::attribute('id', v::intType()->notEmpty());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'intType' => '[{{name}}] must be integer',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }

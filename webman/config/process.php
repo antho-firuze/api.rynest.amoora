@@ -19,13 +19,13 @@ use app\process\Http;
 global $argv;
 
 return [
-    'event-source' => [
+    'sse' => [
         'listen' => 'http://0.0.0.0:8686',
-        'handler' => app\process\EventSource::class,
+        'handler' => app\process\Sse::class,
     ],
-    'http-chunk' => [
-        'listen' => 'http://0.0.0.0:8585',
-        'handler' => app\process\HttpChunk::class,
+    'signaling' => [
+        'listen' => 'websocket://0.0.0.0:8585',
+        'handler' => app\process\Signaling::class,
     ],
     'task' => [
         'handler' => app\process\Task::class,

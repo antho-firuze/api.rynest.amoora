@@ -66,6 +66,20 @@ Route::group('/api/v1/broadcast', function () {
     app\middleware\VerifyAPIToken::class,
 ]);
 
+Route::group('/api/v1/streamer', function () {
+    Route::post('/', [app\api\Streamer_v1::class, 'index']);
+    Route::post('/start', [app\api\Streamer_v1::class, 'start']);
+    Route::post('/stop', [app\api\Streamer_v1::class, 'stop']);
+    Route::post('/heartbeat', [app\api\Streamer_v1::class, 'heartbeat']);
+    // Route::post('/all', [app\api\Streamer_v1::class, 'all']);
+    Route::post('/byid', [app\api\Streamer_v1::class, 'byid']);
+    Route::post('/join', [app\api\Streamer_v1::class, 'join']);
+    // Route::post('/push_send', [app\api\Streamer_v1::class, 'push_send']);
+    Route::post('/ice_server_config', [app\api\Streamer_v1::class, 'ice_server_config']);
+})->middleware([
+    app\middleware\VerifyAPIToken::class,
+]);
+
 Route::group('/api/v1/signaling', function () {
     Route::post('/', [app\api\Signaling_v1::class, 'index']);
     Route::post('/createPresenter', [app\api\Signaling_v1::class, 'createPresenter']);
@@ -107,7 +121,7 @@ Route::group('/api/v1/notification', function () {
 Route::group('/api/v1/pusher', function () {
     Route::any('/', [app\api\Pusher_v1::class, 'index']);
     Route::post('/auth', [app\api\Pusher_v1::class, 'auth']);
-    Route::post('/trigger', [app\api\Pusher_v1::class, 'trigger']);
+    Route::post('/trigger_all', [app\api\Pusher_v1::class, 'trigger_all']);
     Route::post('/channels', [app\api\Pusher_v1::class, 'channels']);
     Route::post('/channel_info', [app\api\Pusher_v1::class, 'channel_info']);
     Route::post('/channel_info_users', [app\api\Pusher_v1::class, 'channel_info_users']);
