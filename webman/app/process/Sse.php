@@ -17,6 +17,8 @@ use Webman\Push\Api;
 
 class Sse
 {
+    protected $app_key = '330f6a0a37d5d14357fe136b3ea11e06';
+
     protected $validatorDesc = [
         'attribute' => 'Params [{{name}}] is required',
         'stringType' => '[{{name}}] must be a string type',
@@ -29,7 +31,8 @@ class Sse
         'noWhitespace' => '[{{name}}|username] cannot contain spaces',
     ];
 
-    protected $noNeedLogin = ['online_streamer', 'get_viewers_count', 'get_streamer_status'];
+    protected $noNeedLogin = [];
+    // protected $noNeedLogin = ['online_streamer', 'get_viewers_count', 'get_streamer_status'];
 
     public $user_id = null;
 
@@ -87,9 +90,12 @@ class Sse
                 }
             }
             [$type, $token] = explode(' ', $authorization);
-            $result = JwtToken::verify(1, $token);
+            if ($token != $this->app_key) {
+                throw new Exception("Request Authorization Token failed");
+            }
 
-            $this->user_id = $result['extend']['id'];
+            // $result = JwtToken::verify(1, $token);
+            // $this->user_id = $result['extend']['id'];
         } catch (\Throwable $e) {
             $connection->send(jsonr(['message' => $e->getMessage()], 403));
         }
