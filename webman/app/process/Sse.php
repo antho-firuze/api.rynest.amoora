@@ -49,6 +49,7 @@ class Sse
         $explode = explode('/', trim($path, '/'));
         if (count($explode) < 2) {
             $connection->send(jsonr(['message' => 'Bad Request'], 400));
+            return;
         }
 
         // Method requires token
