@@ -12,6 +12,15 @@ class Maps_v1
 {
     protected $noNeedLogin = ['index'];
 
+    protected $validatorDesc = [
+        'attribute' => 'Params [{{name}}] is required',
+        'stringType' => '[{{name}}] must be a string type',
+        'email' => '[{{name}}] must be a valid email',
+        'boolType' => '[{{name}}] must be a boolean type',
+        'floatType' => '[{{name}}] must be a floating point number',
+        'notEmpty' => '[{{name}}] must not empty',
+    ];
+
     public function index(Request $request)
     {
         return json(['message' => "Maps API v1"]);
@@ -24,15 +33,10 @@ class Maps_v1
         $data = (object) $request->post();
         try {
             $inputValidator = v::attribute('lat', v::floatType())
-                ->attribute('lng', v::floatType())
-                ->attribute('label', v::stringType());
+                ->attribute('lng', v::floatType());
             $inputValidator->assert($data);
         } catch (NestedValidationException $e) {
-            $errAttr = $e->getMessages([
-                'attribute' => 'Params [{{name}}] is required',
-                'floatType' => '[{{name}}] must be a floating point number',
-                'notEmpty' => '[{{name}}] must not empty',
-            ]);
+            $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
             return jsonr(['message' => $errMessage]);
         }
@@ -50,6 +54,46 @@ class Maps_v1
                 'time' => $data->heartbeat ?? date('Y-m-d H:i:s'),
             ];
             Db::table('log_location')->insert($log);
+
+            $result = $log;
+
+            if ($data->is_testing ?? false) {
+                Db::rollBack();
+                $result['is_testing'] = $data->is_testing;
+            } else {
+                Db::commit();
+            }
+        } catch (\Throwable $th) {
+            Db::rollBack();
+            return jsonr(["message" => $th->getMessage(), "trace" => $th->getTrace()]);
+        }
+
+        // LAST STAGE (Output Process)
+        // ===========================
+        return json($result);
+    }
+
+    public function live_location(Request $request)
+    {
+        // FIRST STAGE (Parameters)
+        // ========================
+        $data = (object) $request->post();
+        try {
+            $inputValidator = v::attribute('lat', v::floatType())
+                ->attribute('lng', v::floatType())
+                ->attribute('label', v::stringType());
+            $inputValidator->assert($data);
+        } catch (NestedValidationException $e) {
+            $errAttr = $e->getMessages($this->validatorDesc);
+            $errMessage = join(", ", (array) $errAttr['attribute']);
+            return jsonr(['message' => $errMessage]);
+        }
+
+        // MIDDLE STAGE (Main Process)
+        // ===========================
+        Db::beginTransaction();
+        try {
+            $user_id = JwtToken::getCurrentId();
 
             $live = [
                 'user_id' => $user_id,

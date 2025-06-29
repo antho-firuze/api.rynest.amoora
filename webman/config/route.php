@@ -46,6 +46,7 @@ Route::group('/api/v1/member', function () {
 Route::group('/api/v1/maps', function () {
     Route::post('/', [app\api\Maps_v1::class, 'index']);
     Route::post('/save_location', [app\api\Maps_v1::class, 'save_location']);
+    Route::post('/live_location', [app\api\Maps_v1::class, 'live_location']);
     Route::post('/log', [app\api\Maps_v1::class, 'log']);
 })->middleware([
     app\middleware\VerifyAPIToken::class,
