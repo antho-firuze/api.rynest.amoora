@@ -291,7 +291,7 @@ class Sse
         // ========================
         $param = $request->get();
         try {
-            $inputValidator = v::attribute('user_id', v::notEmpty());
+            $inputValidator = v::attribute('user_id', v::noWhitespace());
             $inputValidator->assert((object) $param);
         } catch (NestedValidationException $e) {
             $errAttr = $e->getMessages($this->validatorDesc);
