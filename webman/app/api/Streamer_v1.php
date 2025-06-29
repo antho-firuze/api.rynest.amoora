@@ -205,7 +205,7 @@ class Streamer_v1
             $res = [
                 'heartbeat' => date('Y-m-d H:i:s'),
             ];
-            $count = Db::table('streamer')
+            $affected = Db::table('streamer')
                 ->where(['id' => $data['id']])
                 ->where(['finished_at' => null])
                 ->update($res);
@@ -223,8 +223,7 @@ class Streamer_v1
 
         // LAST STAGE (Output Process)
         // ===========================
-        $result['message'] = 'done';
-        $result['count'] = $count;
+        $result['affected'] = $affected;
         return json($result);
     }
 
