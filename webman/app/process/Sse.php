@@ -71,8 +71,8 @@ class Sse
                 $this->get_streamer_status($connection, $request);
                 break;
 
-            case 'notification':
-                $this->notification($connection, $request);
+            case 'get_notification_count':
+                $this->get_notification_count($connection, $request);
                 break;
 
             default:
@@ -221,7 +221,6 @@ class Sse
                 $connection->send(new ServerSentEvents(['event' => 'error', 'data' => $th->getMessage(), 'id' => time()]));
                 throw $th;
             }
-
         });
     }
 
@@ -246,6 +245,7 @@ class Sse
         $duration = $param['duration'] ?? 2;  // Duration in second
         $old_value = '';
 
+        // If the access head is Text/Event-Stream, it means that it is the SSE request
         if ($request->header('Accept') !== 'text/event-stream') {
             $connection->send(jsonr(['message' => 'Request Header not satisfying !'], 400));
         }
@@ -278,41 +278,64 @@ class Sse
                 $connection->send(new ServerSentEvents(['event' => 'error', 'data' => $th->getMessage(), 'id' => time()]));
                 throw $th;
             }
-
         });
     }
 
-    public function notification(TcpConnection $connection, Request $request)
+    /**
+     * GET http://192.168.18.234:8686/sse/get_notification_count?user_id=39
+     *
+     */
+    public function get_notification_count(TcpConnection $connection, Request $request)
     {
-        // Check is Token Valid
-        $user_id = $this->verifyToken($connection, $request);
-        // Init variables
+        // FIRST STAGE (Parameters)
+        // ========================
+        $param = $request->get();
+        try {
+            $inputValidator = v::attribute('user_id', v::notEmpty());
+            $inputValidator->assert((object) $param);
+        } catch (NestedValidationException $e) {
+            $errAttr = $e->getMessages($this->validatorDesc);
+            $errMessage = join(", ", (array) $errAttr['attribute']);
+            $connection->send(jsonr(['message' => $errMessage]));
+            return;
+        }
+        $duration = $param['duration'] ?? 2;  // Duration in second
         $old_value = '';
 
         // If the access head is Text/Event-Stream, it means that it is the SSE request
-        if ($request->header('Accept') === 'text/event-stream') {
-            // First send a response to Content-Type: Text/Event-Stream header
-            $connection->send(new Response(200, ['Content-Type' => 'text/event-stream', 'Access-Control-Allow-Origin' => '*'], "\n\n"));
+        if ($request->header('Accept') !== 'text/event-stream') {
+            $connection->send(jsonr(['message' => 'Request Header not satisfying !'], 400));
+        }
 
-            // Push data to the client regularly
-            $timer_id = Timer::add(2, function () use ($connection, $request, $user_id, &$timer_id, &$old_value) {
-                // When the connection is turned off, delete the timer to avoid the continuous accumulation of the timer and cause memory leakage.
-                if ($connection->getStatus() !== TcpConnection::STATUS_ESTABLISHED) {
-                    Timer::del($timer_id);
-                    return;
-                }
+        // First send a response to Content-Type: Text/Event-Stream header
+        $connection->send(new Response(200, ['Content-Type' => 'text/event-stream', 'Access-Control-Allow-Origin' => '*'], "\n\n"));
 
-                $users = Db::table('notification')
-                    ->where('user_id', '=', $user_id)
-                    ->get();
+        // MIDDLE STAGE (Main Process) - Push data to the client regularly
+        // ===============================================================
+        $timer_id = Timer::add($duration, function () use ($connection, $param, &$timer_id, &$old_value) {
+            // When the connection is turned off, delete the timer to avoid the continuous accumulation of the timer and cause memory leakage.
+            if ($connection->getStatus() !== TcpConnection::STATUS_ESTABLISHED) {
+                Timer::del($timer_id);
+                return;
+            }
 
-                $new_value = json_encode($users);
+            try {
+                $rows = Db::table('notification')
+                    ->where('is_read', '=', 0)
+                    ->where('user_id', '=', $param['user_id'])
+                    ->count();
+
+                $result = $rows;
+
+                $new_value = json_encode($result);
                 if (strcmp($old_value, $new_value) !== 0) {
                     $connection->send(new ServerSentEvents(['event' => 'message', 'data' => $new_value, 'id' => time()]));
                     $old_value = $new_value;
                 }
-            });
-        }
-        return;
+            } catch (\Throwable $th) {
+                $connection->send(new ServerSentEvents(['event' => 'error', 'data' => $th->getMessage(), 'id' => time()]));
+                throw $th;
+            }
+        });
     }
 }
