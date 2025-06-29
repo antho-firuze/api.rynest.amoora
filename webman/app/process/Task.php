@@ -43,7 +43,7 @@ class Task
     // Check heartbeat every 15 second
     private function update_streamer_state()
     {
-        $obsolete = date('Y-m-d H:i:s', strtotime('-30 second')); // heartbeat not update for 30's its mean finished
+        $obsolete = date('Y-m-d H:i:s', strtotime('-60 second')); // heartbeat not update for 60's its mean finished
         Db::table('streamer')
             ->where('finished_at', '=', null)
             ->where('heartbeat', '<', $obsolete)
