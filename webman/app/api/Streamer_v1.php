@@ -385,6 +385,7 @@ class Streamer_v1
             ],
         ];
         $result["iceTransportPolicy"] = "relay";
+        $result["bundlePolicy"] = "max-bundle";
         $result["sdpSemantics"] = "unified-plan";
         return $result;
     }
