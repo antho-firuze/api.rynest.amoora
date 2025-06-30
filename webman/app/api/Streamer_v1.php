@@ -384,6 +384,8 @@ class Streamer_v1
                 "credential" => $password,
             ],
         ];
+        $result["iceTransportPolicy"] = "relay";
+        $result["sdpSemantics"] = "unified-plan";
         return $result;
     }
 
