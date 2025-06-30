@@ -353,29 +353,63 @@ class Streamer_v1
         return json($result);
     }
 
-    // v2
+    // v3
     private function rynest_ice_server()
     {
-        $host = "202.73.24.36:3478";
-        $username = "username1";
-        $password = "password1";
+        $host = "global.relay.metered.ca";
+        $username = "24f8ee409680a9653a902d07";
+        $password = "mYURvxfoLshqjBLr";
         $result["ice_servers"] = [
             [
                 "urls" => "stun:stun3.l.google.com:19302",
             ],
             [
-                "urls" => "turn:$host?transport=udp",
+                "urls" => "turn:$host:80",
                 "username" => $username,
                 "credential" => $password,
             ],
             [
-                "urls" => "turn:$host?transport=tcp",
+                "urls" => "turn:$host:443",
+                "username" => $username,
+                "credential" => $password,
+            ],
+            [
+                "urls" => "turn:$host:80?transport=tcp",
+                "username" => $username,
+                "credential" => $password,
+            ],
+            [
+                "urls" => "turn:$host:443?transport=tcp",
                 "username" => $username,
                 "credential" => $password,
             ],
         ];
         return $result;
     }
+
+    // v3 = failed
+    // private function rynest_ice_server()
+    // {
+    //     $host = "202.73.24.36:3478";
+    //     $username = "username1";
+    //     $password = "password1";
+    //     $result["ice_servers"] = [
+    //         [
+    //             "urls" => "stun:stun3.l.google.com:19302",
+    //         ],
+    //         [
+    //             "urls" => "turn:$host?transport=udp",
+    //             "username" => $username,
+    //             "credential" => $password,
+    //         ],
+    //         [
+    //             "urls" => "turn:$host?transport=tcp",
+    //             "username" => $username,
+    //             "credential" => $password,
+    //         ],
+    //     ];
+    //     return $result;
+    // }
 
     // v2 = failed
     // private function rynest_ice_server()
