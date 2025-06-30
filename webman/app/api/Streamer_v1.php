@@ -353,42 +353,63 @@ class Streamer_v1
         return json($result);
     }
 
-    // v3
+    // v5
     private function rynest_ice_server()
     {
-        $host = "global.relay.metered.ca";
-        $username = "24f8ee409680a9653a902d07";
-        $password = "mYURvxfoLshqjBLr";
+        $host = "202.73.24.36:3478";
+        $username = "username1";
+        $password = "password1";
         $result["ice_servers"] = [
             [
                 "urls" => "stun:stun3.l.google.com:19302",
             ],
             [
-                "urls" => "turn:$host:80",
-                "username" => $username,
-                "credential" => $password,
-            ],
-            [
-                "urls" => "turn:$host:443",
-                "username" => $username,
-                "credential" => $password,
-            ],
-            [
-                "urls" => "turn:$host:80?transport=tcp",
-                "username" => $username,
-                "credential" => $password,
-            ],
-            [
-                "urls" => "turn:$host:443?transport=tcp",
+                "urls" => "turn:$host",
                 "username" => $username,
                 "credential" => $password,
             ],
         ];
-        $result["iceTransportPolicy"] = "relay";
-        $result["bundlePolicy"] = "max-bundle";
+        $result["iceTransportPolicy"] = "all";
         $result["sdpSemantics"] = "unified-plan";
         return $result;
     }
+
+    // v4 = failed
+    // private function rynest_ice_server()
+    // {
+    //     $host = "global.relay.metered.ca";
+    //     $username = "24f8ee409680a9653a902d07";
+    //     $password = "mYURvxfoLshqjBLr";
+    //     $result["ice_servers"] = [
+    //         [
+    //             "urls" => "stun:stun3.l.google.com:19302",
+    //         ],
+    //         [
+    //             "urls" => "turn:$host:80",
+    //             "username" => $username,
+    //             "credential" => $password,
+    //         ],
+    //         [
+    //             "urls" => "turn:$host:443",
+    //             "username" => $username,
+    //             "credential" => $password,
+    //         ],
+    //         [
+    //             "urls" => "turn:$host:80?transport=tcp",
+    //             "username" => $username,
+    //             "credential" => $password,
+    //         ],
+    //         [
+    //             "urls" => "turn:$host:443?transport=tcp",
+    //             "username" => $username,
+    //             "credential" => $password,
+    //         ],
+    //     ];
+    //     $result["iceTransportPolicy"] = "relay";
+    //     $result["bundlePolicy"] = "max-bundle";
+    //     $result["sdpSemantics"] = "unified-plan";
+    //     return $result;
+    // }
 
     // v3 = failed
     // private function rynest_ice_server()
