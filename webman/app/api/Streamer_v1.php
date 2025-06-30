@@ -353,6 +353,7 @@ class Streamer_v1
         return json($result);
     }
 
+    // v2
     private function rynest_ice_server()
     {
         $host = "202.73.24.36:3478";
@@ -360,8 +361,8 @@ class Streamer_v1
         $password = "password1";
         $result["ice_servers"] = [
             [
-                "url" => "stun:$host",
-                "urls" => "stun:$host",
+                "url" => "stun:stun3.l.google.com:19302",
+                "urls" => "stun:stun3.l.google.com:19302",
             ],
             [
                 "url" => "turn:$host",
@@ -369,23 +370,58 @@ class Streamer_v1
                 "username" => $username,
                 "credential" => $password,
             ],
-            [
-                "url" => "turn:$host?transport=udp",
-                "urls" => "turn:$host?transport=udp",
-                "username" => $username,
-                "credential" => $password,
-            ],
-            [
-                "url" => "turn:$host?transport=tcp",
-                "urls" => "turn:$host?transport=tcp",
-                "username" => $username,
-                "credential" => $password,
-            ],
+            // [
+            //     "url" => "turn:$host?transport=udp",
+            //     "urls" => "turn:$host?transport=udp",
+            //     "username" => $username,
+            //     "credential" => $password,
+            // ],
+            // [
+            //     "url" => "turn:$host?transport=tcp",
+            //     "urls" => "turn:$host?transport=tcp",
+            //     "username" => $username,
+            //     "credential" => $password,
+            // ],
         ];
-        $result["iceTransportPolicy"] = "all";
-        $result["sdpSemantics"] = "unified-plan";
+        // $result["iceTransportPolicy"] = "all";
+        // $result["sdpSemantics"] = "unified-plan";
         return $result;
     }
+
+    // v1 = failed
+    // private function rynest_ice_server()
+    // {
+    //     $host = "202.73.24.36:3478";
+    //     $username = "username1";
+    //     $password = "password1";
+    //     $result["ice_servers"] = [
+    //         [
+    //             "url" => "stun:$host",
+    //             "urls" => "stun:$host",
+    //         ],
+    //         [
+    //             "url" => "turn:$host",
+    //             "urls" => "turn:$host",
+    //             "username" => $username,
+    //             "credential" => $password,
+    //         ],
+    //         [
+    //             "url" => "turn:$host?transport=udp",
+    //             "urls" => "turn:$host?transport=udp",
+    //             "username" => $username,
+    //             "credential" => $password,
+    //         ],
+    //         [
+    //             "url" => "turn:$host?transport=tcp",
+    //             "urls" => "turn:$host?transport=tcp",
+    //             "username" => $username,
+    //             "credential" => $password,
+    //         ],
+    //     ];
+    //     $result["iceTransportPolicy"] = "all";
+    //     $result["sdpSemantics"] = "unified-plan";
+    //     return $result;
+    // }
 
     private function google_ice_server()
     {
