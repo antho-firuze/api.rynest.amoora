@@ -15,10 +15,14 @@ class Maps_v1
     protected $validatorDesc = [
         'attribute' => 'Params [{{name}}] is required',
         'stringType' => '[{{name}}] must be a string type',
+        'intType' => '[{{name}}] must be integer',
+        'dateTime' => '[{{name}}] format is [Y-m-d H:i:s]',
         'email' => '[{{name}}] must be a valid email',
         'boolType' => '[{{name}}] must be a boolean type',
-        'floatType' => '[{{name}}] must be a floating point number',
+        'length' => '[{{name}}] length must be between {{minValue}} and {{maxValue}}',
+        'number' => '[{{name}}] must be a number',
         'notEmpty' => '[{{name}}] must not empty',
+        'noWhitespace' => '[{{name}}|username] cannot contain spaces',
     ];
 
     public function index(Request $request)

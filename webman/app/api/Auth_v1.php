@@ -154,7 +154,7 @@ class Auth_v1
         // ===========================
         Db::beginTransaction();
         try {
-            $user = Db::table('users')->where('identifier', $data->identifier)->first();
+            $user = Db::table('users')->where('email', $data->identifier)->first();
 
             // Unknown User
             if (!$user) {
@@ -184,7 +184,7 @@ class Auth_v1
 
             $payload = [
                 'id' => $user->id,
-                'role_id' => $user->role_id,
+                'role_id' => 1,
                 'name' => $user->name,
                 'email' => $user->email,
             ];
@@ -448,17 +448,19 @@ class Auth_v1
      * @param string $email    email
      * @return json
      */
-    public function send_forgot_code(Request $request)
+    public function send_code(Request $request)
     {
         // FIRST STAGE (Parameters)
         // ========================
         $data = (object) $request->post();
         try {
-            $inputValidator = v::attribute('email', v::stringType()->email()->notEmpty())
-                ->attribute('phone')
-                ->attribute('send_via', v::stringType()->notEmpty())
-                ->attribute('is_testing', v::boolType());
+            $inputValidator = v::attribute('send_via', v::stringType()->notEmpty());
+                // ->attribute('phone')
+                // ->attribute('email', v::stringType()->email()->notEmpty())
+                // ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
+
+            $data->is_testing = isset($data->is_testing) ? $data->is_testing : true;
         } catch (NestedValidationException $e) {
             $errAttr = $e->getMessages($this->validatorDesc);
             $errMessage = join(", ", (array) $errAttr['attribute']);
@@ -468,10 +470,18 @@ class Auth_v1
         if (!in_array($data->send_via, $send_via_allowed)) {
             $sendvia = implode("|", $send_via_allowed);
             return jsonr(['message' => "[send_via] not allowed, except: [{$sendvia}]"]);
-        } else if (in_array($data->send_via, ['sms', 'wa', 'telegram'])) {
+        } 
+        
+        if (in_array($data->send_via, ['sms', 'wa', 'telegram'])) {
             $sendvia = implode("|", ['sms', 'wa', 'telegram']);
-            if (!$data->phone) {
+            if (!isset($data->phone) || !$data->phone) {
                 return jsonr(['message' => "[phone] must be supplied for send via: [{$sendvia}]"]);
+            }
+        }
+
+        if ($data->send_via == 'email') {
+            if (!isset($data->email) || !$data->email) {
+                return jsonr(['message' => "[email] must be supplied for send via: [email]"]);
             }
         }
 

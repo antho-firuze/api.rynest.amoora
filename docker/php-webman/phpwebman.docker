@@ -9,10 +9,11 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && apk add libpng-dev \
     && apk add freetype-dev \
     && apk add libjpeg-turbo-dev \
+    && apk add libpq-dev \
     && docker-php-source extract \
     && docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) pcntl pdo_mysql gd \
-    && docker-php-ext-enable opcache pcntl pdo_mysql gd \
+    && docker-php-ext-install -j$(nproc) pcntl pdo_mysql pdo_pgsql pgsql gd \
+    && docker-php-ext-enable opcache pcntl pdo_mysql pdo_pgsql pgsql gd \
     && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     && sed -i 's/post_max_size =.*/post_max_size = 50M/g' "$PHP_INI_DIR/php.ini" \
     && sed -i 's/upload_max_filesize =.*/upload_max_filesize = 50M/g' "$PHP_INI_DIR/php.ini" \

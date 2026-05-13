@@ -23,7 +23,7 @@ Route::group('/api/v1/auth', function () {
     Route::post('/', [app\api\Auth_v1::class, 'index']);
     Route::post('/signin', [app\api\Auth_v1::class, 'signin']);
     Route::post('/signup', [app\api\Auth_v1::class, 'signup']);
-    Route::post('/send_forgot_code', [app\api\Auth_v1::class, 'send_forgot_code']);
+    Route::post('/send_code', [app\api\Auth_v1::class, 'send_code']);
     Route::post('/send_verification_code', [app\api\Auth_v1::class, 'send_verification_code']);
     Route::post('/confirm_verification_code', [app\api\Auth_v1::class, 'confirm_verification_code']);
     Route::post('/reset_pwd', [app\api\Auth_v1::class, 'reset_pwd']);
@@ -99,6 +99,15 @@ Route::group('/api/v1/product', function () {
     Route::post('/all', [app\api\Product_v1::class, 'all']);
     Route::post('/list', [app\api\Product_v1::class, 'list']);
     Route::post('/byId', [app\api\Product_v1::class, 'byId']);
+})->middleware([
+    app\middleware\VerifyAPIToken::class,
+]);
+
+Route::group('/api/v1/package', function () {
+    Route::post('/', [app\api\Package_v1::class, 'index']);
+    Route::post('/all', [app\api\Package_v1::class, 'all']);
+    Route::post('/list', [app\api\Package_v1::class, 'list']);
+    Route::post('/byId', [app\api\Package_v1::class, 'byId']);
 })->middleware([
     app\middleware\VerifyAPIToken::class,
 ]);

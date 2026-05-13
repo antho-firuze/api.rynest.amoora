@@ -23,6 +23,7 @@ class Sse
         'attribute' => 'Params [{{name}}] is required',
         'stringType' => '[{{name}}] must be a string type',
         'intType' => '[{{name}}] must be integer',
+        'dateTime' => '[{{name}}] format is [Y-m-d H:i:s]',
         'email' => '[{{name}}] must be a valid email',
         'boolType' => '[{{name}}] must be a boolean type',
         'length' => '[{{name}}] length must be between {{minValue}} and {{maxValue}}',
