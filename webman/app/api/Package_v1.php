@@ -101,11 +101,39 @@ class Package_v1
     {
         // FIRST STAGE (Parameters)
         // ========================
+        // {
+        //     "offset": 0,
+        //     "limit": 4
+        //     "sorts": {
+        //         "departure_date": "desc",
+        //         "price_quad": "asc"
+        //     },
+        //     "filter": {
+        //         "type": [
+        //             "umroh"
+        //         ],
+        //         "duration_days": [
+        //             9,
+        //             13,
+        //             12
+        //         ],
+        //         "category_id": [
+        //             7,
+        //             1,
+        //             2
+        //         ],
+        //         "airline": [
+        //             "Lion Air",
+        //             "Saudia Airlines",
+        //             "Oman Air"
+        //         ],
+        //         "price_quad": [
+        //             30000000,
+        //             40600000
+        //         ]
+        //     }
+        // }
         $data = (object) $request->post();
-        // $type = isset($data->type) ? $data->type : 'unset';
-        // $orderBy = isset($data->order_by) ? $data->order_by : 'unset';
-        // $offset = isset($data->offset) ? $data->offset : 'unset';
-        // $limit = isset($data->limit) ? $data->limit : 'unset';
 
         // REDIS CHECK STAGE
         // ===================
@@ -124,33 +152,40 @@ class Package_v1
         // ===========================
         Db::beginTransaction();
         try {
-            $query = Db::table('packages')->select('packages.id')->where('is_active', true);
+            $query = Db::table('packages')->where('is_active', true);
+            $filterQry = Db::table('packages')->where('is_active', true);
 
-            // FILTER
-            $type = null;
-            $typeField = ['all' => null, 'haji' => 'haji', 'umrah' => 'umroh'];
-            if (isset($data->type)) {
-                $type = isset($typeField[$data->type]) ? $typeField[$data->type] : $type;
-            }
-            if ($type != null) {
-                $query = $query->where('type', $type);
+            // FILTER INPUT
+            $filterFields = ['type', 'duration_days', 'category_id', 'airline'];
+            $filterMinMax = ['price_quad'];
+            if (isset($data->filter)) {
+                foreach ($data->filter as $key => $value) {
+                    if (in_array($key, $filterFields)) {
+                        $query->whereIn($key, $value);
+                        $filterQry = $filterQry->whereIn($key, $value);
+                    }
+                    if (in_array($key, $filterMinMax)) {
+                        $query->when($data->filter[$key], function ($query, array $price) use ($key) {
+                            return $query->where($key, '>=', $price[0])->where($key, '<=', $price[1]);
+                        });
+                        $filterQry->when($data->filter[$key], function ($query, array $price) use ($key) {
+                            return $query->where($key, '>=', $price[0])->where($key, '<=', $price[1]);
+                        });
+                    }
+                }
             }
 
-            // ORDER BY
-            $orderBy = 'sort_order';
-            $orderField = ['date' => 'departure_date', 'price' => 'price_quad'];
-            if (isset($data->order_by)) {
-                $orderBy = isset($orderField[$data->order_by]) ? $orderField[$data->order_by] : $orderBy;
+            // SORTING
+            if (isset($data->sorts)) {
+                foreach ($data->sorts as $column => $direction) {
+                    $query->orderBy($column, $direction);
+                }
             }
-            // ORDER TYPE
-            $orderType = 'asc';
-            if (isset($data->order_type)) {
-                $orderType = in_array(
-                    $data->order_type,
-                    ['asc', 'desc']
-                ) ? $data->order_type : $orderType;
-            }
-            $query = $query->orderBy($orderBy, $orderType);
+
+            // COUNT ALL RECORDS
+            // Places before offset & limit 
+            // otherwise became not accurate when offset not zero (0)
+            $count = $query->count();
 
             // OFFSET & LIMIT
             $offset = 0;
@@ -161,9 +196,17 @@ class Package_v1
             if (isset($data->limit)) {
                 $limit = is_int($data->limit) ? $data->limit : $limit;
             }
-            $query = $query->offset($offset)->limit($limit);
+            $query->offset($offset)->limit($limit);
 
-            $packages = $query->get();
+            // CREATE FILTER FIELDS FOR OUTPUT
+            $filter = [];
+            foreach ($filterFields as $key => $value) {
+                $filter[$value] = $filterQry->distinct()->pluck($value);
+            }
+
+            // RESULT
+            // return json($query->toRawSql());
+            $packages = $query->select('packages.id')->get();
 
             Db::commit();
         } catch (\Throwable $th) {
@@ -173,7 +216,11 @@ class Package_v1
 
         // LAST STAGE (Output Process)
         // ===========================
-        $result = $packages;
+        $result['offset'] = $offset;
+        $result['limit'] = $limit;
+        $result['filter'] = $filter;
+        $result['count'] = $count;
+        $result['result'] = $packages;
 
         // Save to Redis
         // Redis::set($redisKey, json_encode($result));
