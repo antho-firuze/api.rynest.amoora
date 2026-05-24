@@ -758,7 +758,7 @@ class Auth_v1
         return json($result);
     }
 
-    private function _check_pwd($plaintext, $encryptedtext)
+    private function _check_pwd(string $plaintext, string $encryptedtext): bool
     {
         $cbnUser = substr($encryptedtext, 0, 5) === '$1c3N' ? TRUE : FALSE;
 
