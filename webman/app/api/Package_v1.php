@@ -102,6 +102,7 @@ class Package_v1
         // FIRST STAGE (Parameters)
         // ========================
         // {
+        //     "search": "umroh",
         //     "offset": 0,
         //     "limit": 4
         //     "sorts": {
@@ -155,7 +156,14 @@ class Package_v1
             $query = Db::table('packages')->where('is_active', true);
             $filterQry = Db::table('packages')->where('is_active', true);
 
-            // FILTER INPUT
+            // SEARCH & FILTER INPUT
+            $searchFields = ['name', 'badge', 'airline', 'program_note', 'hotel_makkah', 'hotel_madinah'];
+            if (isset($data->search) && $data->search) {
+                // $searchString = strtolower($data->search);
+                // $query->whereFullText($searchFields, $searchString);
+                $query->whereAny($searchFields, 'ILIKE', "%{$data->search}%");
+                $filterQry->whereAny($searchFields, 'ILIKE', "%{$data->search}%");
+            }
             $filterFields = ['type', 'duration_days', 'category_id', 'airline'];
             $filterMinMax = ['price_quad'];
             if (isset($data->filter)) {
@@ -216,6 +224,9 @@ class Package_v1
 
         // LAST STAGE (Output Process)
         // ===========================
+        if (isset($data->search) && $data->search) {
+            $result['search'] = $data->search;
+        }
         $result['offset'] = $offset;
         $result['limit'] = $limit;
         $result['filter'] = $filter;
