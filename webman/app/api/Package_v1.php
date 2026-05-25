@@ -214,7 +214,8 @@ class Package_v1
 
             // RESULT
             // return json($query->toRawSql());
-            $packages = $query->select('packages.id')->get();
+            // $packages = $query->select('packages.id')->get();
+            $result_id = $query->pluck('id');
 
             Db::commit();
         } catch (\Throwable $th) {
@@ -231,7 +232,7 @@ class Package_v1
         $result['limit'] = $limit;
         $result['filter'] = $filter;
         $result['count'] = $count;
-        $result['result'] = $packages;
+        $result['result_ids'] = $result_id;
 
         // Save to Redis
         // Redis::set($redisKey, json_encode($result));
