@@ -329,7 +329,7 @@ class Sse
 
             try {
                 $new_value = 0;
-                if (isset($param['user_id']) && !empty($param['user_id'])) {
+                if (isset($param['user_id']) && !empty($param['user_id']) && is_int($param['user_id'])) {
                     $rows = Db::table('notification')
                         ->where('is_read', '=', 0)
                         ->where('user_id', '=', $param['user_id'])
