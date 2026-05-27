@@ -12,6 +12,8 @@ class Carousel_v1
 {
     protected $noNeedLogin = ['index', 'all'];
 
+    protected $endPointCDN = 'https://webapp.amooratravel.com';
+
     public function index(Request $request)
     {
         return json(['message' => "Carousel API v1"]);
@@ -46,7 +48,7 @@ class Carousel_v1
                     'sliders.id',
                     // 'sliders.url',
                     Db::raw(
-                        'CONCAT("https://webapp.amooratravel.com/slider/", sliders.image) as image'
+                        "CONCAT('{$this->endPointCDN}', sliders.image) as image"
                     ),
                 )
                 ->get();
