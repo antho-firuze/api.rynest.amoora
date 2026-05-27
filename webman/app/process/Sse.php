@@ -19,11 +19,13 @@ class Sse
 {
     protected $app_key = '330f6a0a37d5d14357fe136b3ea11e06';
 
+    protected $noNeedLogin = [];
+    // protected $noNeedLogin = ['online_streamer', 'get_viewers_count', 'get_streamer_status'];
+
     protected $validatorDesc = [
         'attribute' => 'Params [{{name}}] is required',
         'stringType' => '[{{name}}] must be a string type',
         'intType' => '[{{name}}] must be integer',
-        'dateTime' => '[{{name}}] format is [Y-m-d H:i:s]',
         'email' => '[{{name}}] must be a valid email',
         'boolType' => '[{{name}}] must be a boolean type',
         'length' => '[{{name}}] length must be between {{minValue}} and {{maxValue}}',
@@ -31,9 +33,6 @@ class Sse
         'notEmpty' => '[{{name}}] must not empty',
         'noWhitespace' => '[{{name}}|username] cannot contain spaces',
     ];
-
-    protected $noNeedLogin = [];
-    // protected $noNeedLogin = ['online_streamer', 'get_viewers_count', 'get_streamer_status'];
 
     public $user_id = null;
 
@@ -136,8 +135,10 @@ class Sse
         $timer_id = Timer::add($duration, function () use ($connection, $request, &$timer_id, &$old_value) {
             // When the connection is turned off, delete the timer to avoid the continuous accumulation of the timer and cause memory leakage.
             if ($connection->getStatus() !== TcpConnection::STATUS_ESTABLISHED) {
-                Timer::del($timer_id);
-                return;
+                if ($timer_id != null) {
+                    Timer::del($timer_id);
+                    return;
+                }
             }
 
             try {
@@ -193,8 +194,10 @@ class Sse
         $timer_id = Timer::add($duration, function () use ($connection, $param, &$timer_id, &$old_value) {
             // When the connection is turned off, delete the timer to avoid the continuous accumulation of the timer and cause memory leakage.
             if ($connection->getStatus() !== TcpConnection::STATUS_ESTABLISHED) {
-                Timer::del($timer_id);
-                return;
+                if ($timer_id != null) {
+                    Timer::del($timer_id);
+                    return;
+                }
             }
 
             try {
@@ -259,8 +262,10 @@ class Sse
         $timer_id = Timer::add($duration, function () use ($connection, $param, &$timer_id, &$old_value) {
             // When the connection is turned off, delete the timer to avoid the continuous accumulation of the timer and cause memory leakage.
             if ($connection->getStatus() !== TcpConnection::STATUS_ESTABLISHED) {
-                Timer::del($timer_id);
-                return;
+                if ($timer_id != null) {
+                    Timer::del($timer_id);
+                    return;
+                }
             }
 
             try {
@@ -316,19 +321,25 @@ class Sse
         $timer_id = Timer::add($duration, function () use ($connection, $param, &$timer_id, &$old_value) {
             // When the connection is turned off, delete the timer to avoid the continuous accumulation of the timer and cause memory leakage.
             if ($connection->getStatus() !== TcpConnection::STATUS_ESTABLISHED) {
-                Timer::del($timer_id);
-                return;
+                if ($timer_id != null) {
+                    Timer::del($timer_id);
+                    return;
+                }
             }
 
             try {
-                $rows = Db::table('notification')
-                    ->where('is_read', '=', 0)
-                    ->where('user_id', '=', $param['user_id'])
-                    ->count();
+                $new_value = 0;
+                if (isset($param['user_id']) && !empty($param['user_id'])) {
+                    $rows = Db::table('notification')
+                        ->where('is_read', '=', 0)
+                        ->where('user_id', '=', $param['user_id'])
+                        ->count();
 
-                $result = $rows;
+                    $result = $rows;
 
-                $new_value = json_encode($result);
+                    $new_value = json_encode($result);
+                }
+
                 if (strcmp($old_value, $new_value) !== 0) {
                     $connection->send(new ServerSentEvents(['event' => 'message', 'data' => $new_value, 'id' => time()]));
                     $old_value = $new_value;
