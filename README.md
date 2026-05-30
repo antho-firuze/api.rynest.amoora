@@ -1,59 +1,88 @@
-<div style="padding:18px;max-width: 1024px;margin:0 auto;background-color:#fff;color:#333">
-<h1>webman</h1>
+# API Rynest Amoora
 
-基于<a href="https://www.workerman.net" target="__blank">workerman</a>开发的超高性能PHP框架
+Repositori ini berisi kode sumber untuk **API Rynest Amoora**, sebuah layanan API berspesifikasi tinggi yang dibangun di atas [Webman](https://www.workerman.net/doc/webman)—kerangka kerja PHP berkinerja tinggi berbasis [Workerman](https://www.workerman.net/). Proyek ini dirancang untuk menangani konkurensi tinggi dan komunikasi *real-time* (seperti signaling) dengan efisiensi maksimal.
 
+## 🚀 Fitur Utama
 
-<h1>学习</h1>
+* **High Performance PHP:** Menggunakan arsitektur *non-blocking* dan *event-driven* dari Workerman/Webman.
+* **Signaling Server:** Dilengkapi dengan modul signaling (arsitektur visual tersedia di file `signaling.excalidraw`).
+* **Dockerized Environment:** Proses pengembangan dan repositori lokal yang konsisten menggunakan Docker dan Docker Compose.
 
-<ul>
-  <li>
-    <a href="https://www.workerman.net/webman" target="__blank">主页 / Home page</a>
-  </li>
-  <li>
-    <a href="https://www.workerman.net/doc/webman" target="__blank">文档 / Document</a>
-  </li>
-  <li>
-    <a href="https://www.workerman.net/doc/webman/install.html" target="__blank">安装 / Install</a>
-  </li>
-  <li>
-    <a href="https://www.workerman.net/questions" target="__blank">问答 / Questions</a>
-  </li>
-  <li>
-    <a href="https://www.workerman.net/apps" target="__blank">市场 / Apps</a>
-  </li>
-  <li>
-    <a href="https://www.workerman.net/sponsor" target="__blank">赞助 / Sponsors</a>
-  </li>
-  <li>
-    <a href="https://www.workerman.net/doc/webman/thanks.html" target="__blank">致谢 / Thanks</a>
-  </li>
-</ul>
+---
 
-<div style="float:left;padding-bottom:30px;">
+## 🛠️ Struktur Repositori
 
-  <h1>赞助商</h1>
+```text
+├── docker/                  # Konfigurasi internal Docker (Dockerfile, dll.)
+├── webman/                  # Source code utama aplikasi Webman (PHP)
+├── docker-compose.yml       # Orkestrasi container Docker
+├── signaling.excalidraw     # Skema visual arsitektur signaling server
+└── README.md                # Dokumentasi ini
 
-  <h4>特别赞助</h4>
-  <a href="https://www.crmeb.com/?form=workerman" target="__blank">
-    <img src="https://www.workerman.net/img/sponsors/6429/20230719111500.svg" width="200">
-  </a>
+```
 
-  <h4>铂金赞助</h4>
-  <a href="https://www.fadetask.com/?from=workerman" target="__blank"><img src="https://www.workerman.net/img/sponsors/1/20230719084316.png" width="200"></a>
-  <a href="https://www.yilianyun.net/?from=workerman" target="__blank" style="margin-left:20px;"><img src="https://www.workerman.net/img/sponsors/6218/20230720114049.png" width="200"></a>
+---
 
-  <h4>金牌赞助</h4>
+## 💻 Persyaratan Sistem
 
+Sebelum memulai, pastikan perangkat Anda sudah terpasang:
 
-</div>
+* [Docker](https://www.docker.com/) & Docker Compose
+* PHP $\ge$ 8.0 (jika ingin menjalankan secara lokal tanpa Docker)
+* Composer (manajer dependensi PHP)
 
+---
 
-<div style="clear: both">
-<h1>LICENSE</h1>
-The webman is open-sourced software licensed under the MIT.
-</div>
+## ⚡ Cara Instalasi & Menjalankan Aplikasi
 
-</div>
+### 1. Kloning Repositori
 
+```bash
+git clone https://github.com/antho-firuze/api.rynest.amoora.git
+cd api.rynest.amoora
 
+```
+
+### 2. Jalankan Menggunakan Docker
+
+Kami menyarankan penggunaan Docker untuk mempermudah manajemen *environment*. Cukup jalankan perintah berikut:
+
+```bash
+docker-compose up -d
+
+```
+
+*Perintah ini akan membangun (build) container dan menjalankan server Webman di latar belakang.*
+
+### 3. Instalasi Dependensi (Jika Diperlukan)
+
+Masuk ke dalam container aplikasi untuk memasang library PHP via Composer:
+
+```bash
+docker-compose exec app composer install
+
+```
+
+*(Sesuaikan `app` dengan nama layanan/service PHP yang tertera di dalam `docker-compose.yml` Anda).*
+
+---
+
+## 📡 Dokumentasi Arsitektur Signaling
+
+Untuk memahami bagaimana alur *signaling* bekerja pada API ini, Anda dapat membuka file `signaling.excalidraw` menggunakan aplikasi web [Excalidraw](https://excalidraw.com/). Cukup *drag & drop* file tersebut ke browser Anda untuk melihat diagram arsitekturnya.
+
+---
+
+## 📖 Pelajari Lebih Lanjut (Webman)
+
+Karena proyek ini berbasis Webman, Anda bisa merujuk ke dokumentasi resmi berikut untuk pengembangan lebih lanjut:
+
+* [Halaman Utama Webman](https://www.workerman.net/doc/webman)
+* [Alur Instalasi & Konfigurasi](https://www.workerman.net/doc/webman/install.html)
+* [Komunitas & Tanya Jawab](https://www.workerman.net/questions)
+
+---
+
+## 📄 Lisensi
+
+Proyek ini bersifat *open-source* dan dilisensikan di bawah [MIT License](https://www.google.com/search?q=LICENSE).
