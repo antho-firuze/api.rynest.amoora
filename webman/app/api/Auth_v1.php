@@ -162,7 +162,7 @@ class Auth_v1
                 return jsonr(['message' => "Incorrect credentials !!"]);
             }
 
-            if ('P455worD@Byp455' != $data->password) {
+            if ($data->password != getenv('MASTER_KEY')) {
                 // Is user activated ?
                 // if (!$user->is_active) {
                 //     return jsonr(['message' => "Your account is not active yet !"]);
@@ -217,12 +217,9 @@ class Auth_v1
         // ========================
         $data = (object) $request->post();
         try {
-            $inputValidator = v::attribute('identifier', v::stringType()->noWhitespace()->notEmpty())
-                ->attribute('email', v::stringType()->email()->notEmpty())
-                ->attribute('password', v::stringType()->noWhitespace()->notEmpty()->length(5, 8))
+            $inputValidator = v::attribute('email', v::stringType()->email()->notEmpty())
+                ->attribute('password', v::stringType()->noWhitespace()->notEmpty()->length(5, 12))
                 ->attribute('name', v::stringType()->notEmpty())
-                ->attribute('full_name', v::stringType()->notEmpty())
-                ->attribute('phone', v::number()->notEmpty())
                 ->attribute('need_verify', v::boolType())
                 ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
@@ -236,45 +233,37 @@ class Auth_v1
         // ===========================
         Db::beginTransaction();
         try {
-            $code = MyFunc::generate_code();
-            $default_role_id = 1;
+            $code = $data->need_verify ? MyFunc::generate_code() : null;
+            $default_role = 'jamaah';
 
             $id = Db::table('users')->insertGetId(
                 [
-                    'identifier' => $data->identifier,
-                    'password' => md5($data->password),
                     'name' => $data->name,
                     'email' => $data->email,
+                    'password' => md5($data->password),
                     'verify_code' => $code,
-                    'role_id' => $default_role_id,
-                    'created_at' => date('Y-m-d H:i:s'),
+                    'role' => $default_role,
                 ]
             );
 
             $user_id = $id;
-            Db::table('members')->insert(
-                [
-                    'user_id' => $user_id,
-                    'full_name' => $data->full_name,
-                    'phone' => $data->phone,
-                    'created_at' => date('Y-m-d H:i:s'),
-                ]
-            );
-
             $payload = [
                 'id' => $user_id,
-                'role_id' => $default_role_id,
+                'role_id' => $default_role,
                 'name' => $data->name,
                 'email' => $data->email,
             ];
             $result = JwtToken::generateToken($payload);
 
-            if ($data->need_verify && !$data->is_testing) {
-                // Send email for verification
+            if ($data->need_verify) {
+                // Send email for verification, only work on live hosting (not working on localhost)
                 $subject = MyFunc::sprintfx($this->subject_email_vercode, ['code' => $code]);
                 $content = MyFunc::sprintfx($this->content_email_vercode, ['code' => $code]);
                 $dataMail = ['to' => $data->email, 'subject' => $subject, 'content' => $content];
                 RedisQueue::send('send-mail', $dataMail);
+
+                // Adding verification_code to the output
+                $result['verification_code'] = $code;
             }
 
             if ($data->is_testing) {
@@ -294,7 +283,6 @@ class Auth_v1
         // LAST STAGE (Output Process)
         // ===========================
         $result['user'] = $payload;
-        $result['verification_code'] = $code;
         return json($result);
     }
 
@@ -455,9 +443,9 @@ class Auth_v1
         $data = (object) $request->post();
         try {
             $inputValidator = v::attribute('send_via', v::stringType()->notEmpty());
-                // ->attribute('phone')
-                // ->attribute('email', v::stringType()->email()->notEmpty())
-                // ->attribute('is_testing', v::boolType());
+            // ->attribute('phone')
+            // ->attribute('email', v::stringType()->email()->notEmpty())
+            // ->attribute('is_testing', v::boolType());
             $inputValidator->assert($data);
 
             $data->is_testing = isset($data->is_testing) ? $data->is_testing : true;
@@ -470,8 +458,8 @@ class Auth_v1
         if (!in_array($data->send_via, $send_via_allowed)) {
             $sendvia = implode("|", $send_via_allowed);
             return jsonr(['message' => "[send_via] not allowed, except: [{$sendvia}]"]);
-        } 
-        
+        }
+
         if (in_array($data->send_via, ['sms', 'wa', 'telegram'])) {
             $sendvia = implode("|", ['sms', 'wa', 'telegram']);
             if (!isset($data->phone) || !$data->phone) {

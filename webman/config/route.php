@@ -121,9 +121,15 @@ Route::group('/api/v1/carousel', function () {
 
 Route::group('/api/v1/notification', function () {
     Route::post('/', [app\api\Notification_v1::class, 'index']);
+    Route::post('/device_sync', [app\api\Notification_v1::class, 'device_sync']);
+    Route::post('/notifications_sync', [app\api\Notification_v1::class, 'notifications_sync']);
+    Route::post('/user_notification_sync', [app\api\Notification_v1::class, 'user_notification_sync']);
     Route::post('/create', [app\api\Notification_v1::class, 'create']);
     Route::post('/update', [app\api\Notification_v1::class, 'update']);
     Route::post('/delete', [app\api\Notification_v1::class, 'delete']);
+    Route::post('/user_read', [app\api\Notification_v1::class, 'user_read']);
+    Route::post('/user_archive', [app\api\Notification_v1::class, 'user_archive']);
+    Route::post('/user_delete', [app\api\Notification_v1::class, 'user_delete']);
 })->middleware([
     app\middleware\VerifyAPIToken::class,
 ]);
